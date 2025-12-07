@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ศูนย์แจ้งเตือน โรงเรียนสระแก้ว</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #0f5e2c;
+      --green-2: #136f32;
+      --yellow: #f1c40f;
+      --bg: #0a1b10;
+      --card: #0f2616;
+      --text: #eef4ec;
+      --muted: #a7c1ad;
+      --shadow: rgba(0,0,0,0.3);
+      --error: #ff7a6b;
+      --success: #9ae16f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Sarabun', 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 10% 20%, rgba(15,94,44,0.25), transparent 30%), radial-gradient(circle at 90% 10%, rgba(241,196,15,0.2), transparent 28%), linear-gradient(160deg, #0c2013, #07150d);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      padding: 20px clamp(16px, 4vw, 32px);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand img {
+      height: 72px;
+      width: auto;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 4vw, 30px);
+      letter-spacing: 0.3px;
+    }
+    .tagline {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    main {
+      padding: 0 clamp(16px, 4vw, 32px) 32px;
+      display: grid;
+      gap: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 10px 30px var(--shadow);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 12px;
+      font-size: 14px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 2px rgba(241,196,15,0.3);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    button {
+      margin-top: 12px;
+      background: linear-gradient(90deg, #f7d046, var(--yellow));
+      color: #0d1b10;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 640px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .item {
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      position: relative;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      color: #0c1c11;
+    }
+    .badge.alert { background: #ff7a6b; }
+    .badge.news { background: #9ae16f; }
+    .title {
+      font-weight: 700;
+      font-size: 16px;
+      margin: 6px 0;
+    }
+    .body { color: var(--muted); line-height: 1.5; }
+    .meta { color: var(--muted); font-size: 12px; margin-top: 6px; }
+    .delete {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      color: var(--muted);
+      width: auto;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .delete:hover { color: #fff; border-color: rgba(255,255,255,0.18); }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 24px;
+      border: 1px dashed rgba(255,255,255,0.12);
+      border-radius: 12px;
+    }
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .filters button {
+      width: auto;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      margin-top: 0;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .filters button.active {
+      background: var(--yellow);
+      color: #0d1b10;
+      border-color: var(--yellow);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .auth-tabs button {
+      width: auto;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      margin-top: 0;
+    }
+    .auth-tabs button.active {
+      background: var(--yellow);
+      color: #0c1c11;
+      border-color: var(--yellow);
+    }
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      object-fit: cover;
+      background: rgba(255,255,255,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: var(--text);
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 8px;
+      text-align: left;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    @media (max-width: 720px) {
+      header { text-align: center; }
+      .brand { justify-content: center; }
+      .brand img { height: 64px; }
+      table { font-size: 13px; }
+      th, td { padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="assets/school-logo.svg" alt="ตราโรงเรียน">
+      <img src="assets/world-class.svg" alt="World Class Standard School">
+      <div>
+        <h1>ศูนย์แจ้งเตือน โรงเรียนสระแก้ว</h1>
+        <p class="tagline">สื่อสารข่าวสารและประกาศสำคัญ สายด่วนเขียว-เหลือง</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" id="notifyCard">
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:700;">ขอสิทธิ์การแจ้งเตือนจากเบราว์เซอร์</div>
+          <div style="color:var(--muted);font-size:13px;">อนุญาตให้แจ้งเตือนเมื่อมีประกาศใหม่</div>
+        </div>
+        <div class="row" style="flex-wrap:nowrap;">
+          <div id="notifyStatus" class="pill">สถานะ: ยังไม่ขอ</div>
+          <button id="btnNotify" style="width:auto;margin:0;">เปิดแจ้งเตือน</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="weatherCard">
+      <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-weight:700;">สภาพอากาศ & ภัยพิบัติ (แจ้งเตือน)</div>
+          <div style="color:var(--muted);font-size:12px;">ใช้ตำแหน่งปัจจุบันเพื่อแจ้งเตือนฝน/แผ่นดินไหวใกล้เคียง</div>
+        </div>
+        <div class="row" style="flex-wrap:nowrap;">
+          <button id="btnLocate" style="width:auto;margin:0;">ใช้ตำแหน่งปัจจุบัน</button>
+          <button id="btnWeatherUpdate" style="width:auto;margin:0;">อัปเดตตอนนี้</button>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+        <div>
+          <label>การแจ้งเตือนอากาศ</label>
+          <select id="selWeatherNotify">
+            <option value="none">ไม่รับแจ้งอากาศ</option>
+            <option value="rain">แจ้งเฉพาะฝน/สภาพเสี่ยง</option>
+            <option value="all">แจ้งทุกสภาพ (รายวัน)</option>
+          </select>
+        </div>
+        <div>
+          <label>การแจ้งเตือนภัยพิบัติ</label>
+          <select id="selHazardNotify">
+            <option value="on">เปิด</option>
+            <option value="off">ปิด</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;">
+        <div class="pill" id="locStatus">ตำแหน่ง: ยังไม่ได้เปิด</div>
+        <div class="pill" id="weatherStatus">อากาศ: -</div>
+        <div class="pill" id="hazardStatus">ภัยพิบัติ: -</div>
+      </div>
+    </section>
+
+    <section class="card" id="authPanel">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div style="font-weight:700;">เข้าสู่ระบบ / ลงทะเบียน</div>
+          <div style="color:var(--muted);font-size:12px;">แยกสิทธิ์เพิ่ม/แก้ไข กับสิทธิ์ดูอย่างเดียว</div>
+        </div>
+      </div>
+      <div class="auth-tabs">
+        <button id="tabLogin" class="active">เข้าสู่ระบบ</button>
+        <button id="tabRegister">ลงทะเบียน</button>
+      </div>
+      <form id="loginForm">
+        <label>ชื่อผู้ใช้</label>
+        <input id="loginUser" type="text" placeholder="เช่น admin">
+        <label style="margin-top:10px;">รหัสผ่าน</label>
+        <input id="loginPass" type="password" placeholder="รหัสผ่าน">
+        <button type="submit">เข้าสู่ระบบ</button>
+        <p style="color:var(--muted);font-size:12px;margin:8px 0 0;">บัญชีตัวอย่าง: admin / admin123 (สิทธิ์ผู้ดูแล)</p>
+      </form>
+      <form id="registerForm" style="display:none;">
+        <label>ชื่อผู้ใช้</label>
+        <input id="regUser" type="text" placeholder="ตั้งชื่อผู้ใช้">
+        <label style="margin-top:10px;">รหัสผ่าน</label>
+        <input id="regPass" type="password" placeholder="รหัสผ่าน">
+        <label style="margin-top:10px;">ชื่อที่แสดง</label>
+        <input id="regDisplay" type="text" placeholder="ชื่อเล่น/ชื่อที่ต้องการให้แสดง">
+        <button type="submit">ลงทะเบียน</button>
+        <p style="color:var(--muted);font-size:12px;margin:8px 0 0;">บัญชีใหม่เริ่มต้นเป็นผู้ชม (ดูและรับแจ้งเตือน)</p>
+      </form>
+    </section>
+
+    <section class="card" id="userPanel" style="display:none;">
+      <div class="row" style="justify-content:space-between;">
+        <div class="row">
+          <img id="avatarImg" class="avatar" alt="avatar">
+          <div>
+            <div id="displayName" style="font-weight:700;font-size:16px;">-</div>
+            <div class="pill" id="rolePill">role</div>
+          </div>
+        </div>
+        <button id="btnLogout" style="width:auto;">ออกจากระบบ</button>
+      </div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
+        <div>
+          <label>ชื่อที่แสดง</label>
+          <input id="profileDisplay" type="text">
+        </div>
+        <div>
+          <label>ลิงก์รูปโปรไฟล์</label>
+          <input id="profileAvatar" type="url" placeholder="https://...">
+        </div>
+      </div>
+      <button id="btnProfile" style="width:auto;">บันทึกโปรไฟล์</button>
+    </section>
+
+    <div class="grid">
+      <section class="card" id="addCard" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <div style="font-weight:700;">เพิ่มประกาศ</div>
+            <div style="color:var(--muted);font-size:12px;">สิทธิ์ผู้ดูแล/ผู้แก้ไขเท่านั้น</div>
+          </div>
+          <div class="badge news">NEW</div>
+        </div>
+        <div>
+          <label for="type">ประเภท</label>
+          <select id="type">
+            <option value="alert">แจ้งเตือน</option>
+            <option value="news">ข่าวสาร</option>
+          </select>
+        </div>
+        <div style="margin-top:10px;">
+          <label for="title">หัวข้อ</label>
+          <input id="title" type="text" placeholder="เช่น งดเรียนเนื่องจาก..." />
+        </div>
+        <div style="margin-top:10px;">
+          <label for="body">รายละเอียด</label>
+          <textarea id="body" placeholder="เพิ่มรายละเอียดสำหรับนักเรียน/ผู้ปกครอง"></textarea>
+        </div>
+        <button id="save">บันทึก</button>
+      </section>
+      <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:700;">รายการประกาศ</div>
+            <div style="color:var(--muted);font-size:12px;">ดูได้ทุกคน ลบได้เฉพาะผู้มีสิทธิ์</div>
+          </div>
+          <div class="filters" id="filters">
+            <button data-filter="all" class="active">ทั้งหมด</button>
+            <button data-filter="alert">แจ้งเตือน</button>
+            <button data-filter="news">ข่าวสาร</button>
+          </div>
+        </div>
+        <div class="list" id="list"></div>
+      </section>
+    </div>
+
+    <section class="card" id="adminUsers" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div>
+          <div style="font-weight:700;">จัดการสิทธิ์ผู้ใช้</div>
+          <div style="color:var(--muted);font-size:12px;">ผู้ดูแลเท่านั้นที่ปรับสิทธิ์ได้</div>
+        </div>
+      </div>
+      <div style="overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ผู้ใช้</th>
+              <th>ชื่อที่แสดง</th>
+              <th>สิทธิ์</th>
+            </tr>
+          </thead>
+          <tbody id="userTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Storage keys
+    const KEY_ALERTS = 'sakaeoAlerts:web';
+    const KEY_USERS = 'sakaeoAlerts:users';
+    const KEY_SESSION = 'sakaeoAlerts:session';
+    const KEY_PREFS = 'sakaeoAlerts:prefs';
+
+    // Elements
+    const listEl = document.getElementById('list');
+    const saveBtn = document.getElementById('save');
+    const titleEl = document.getElementById('title');
+    const bodyEl = document.getElementById('body');
+    const typeEl = document.getElementById('type');
+    const filtersEl = document.getElementById('filters');
+    const addCard = document.getElementById('addCard');
+    const authPanel = document.getElementById('authPanel');
+    const userPanel = document.getElementById('userPanel');
+    const adminUsers = document.getElementById('adminUsers');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const loginUser = document.getElementById('loginUser');
+    const loginPass = document.getElementById('loginPass');
+    const regUser = document.getElementById('regUser');
+    const regPass = document.getElementById('regPass');
+    const regDisplay = document.getElementById('regDisplay');
+    const displayNameEl = document.getElementById('displayName');
+    const rolePill = document.getElementById('rolePill');
+    const avatarImg = document.getElementById('avatarImg');
+    const profileDisplay = document.getElementById('profileDisplay');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const btnProfile = document.getElementById('btnProfile');
+    const btnLogout = document.getElementById('btnLogout');
+    const userTable = document.getElementById('userTable');
+    const notifyStatus = document.getElementById('notifyStatus');
+    const btnNotify = document.getElementById('btnNotify');
+    const btnLocate = document.getElementById('btnLocate');
+    const btnWeatherUpdate = document.getElementById('btnWeatherUpdate');
+    const selWeatherNotify = document.getElementById('selWeatherNotify');
+    const selHazardNotify = document.getElementById('selHazardNotify');
+    const locStatus = document.getElementById('locStatus');
+    const weatherStatus = document.getElementById('weatherStatus');
+    const hazardStatus = document.getElementById('hazardStatus');
+
+    let filter = 'all';
+    let alerts = loadAlerts();
+    let users = loadUsers();
+    let sessionUser = loadSession();
+    let prefs = loadPrefs();
+
+    // Seed admin if missing
+    if (!users.length) {
+      users = seedUsers();
+      saveUsers();
+    }
+    if (!sessionUser) {
+      sessionUser = null;
+    }
+
+    function seedUsers() {
+      return [{
+        username: 'admin',
+        password: 'admin123',
+        role: 'admin',
+        displayName: 'ผู้ดูแลระบบ',
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Admin&backgroundColor[]=3bb273'
+      }];
+    }
+
+    function loadAlerts() {
+      try {
+        const raw = localStorage.getItem(KEY_ALERTS);
+        if (!raw) return seedAlerts();
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : seedAlerts();
+      } catch {
+        return seedAlerts();
+      }
+    }
+
+    function seedAlerts() {
+      const seed = [
+        {
+          id: makeId(),
+          title: 'แจ้งเตือนซ้อมหนีไฟ',
+          body: 'ฝึกซ้อมหนีไฟอาคารเรียน 2 เวลา 10:00 น. โปรดขึ้นแถวตามจุดรวมพล',
+          category: 'alert',
+          createdAt: Date.now()
+        },
+        {
+          id: makeId(),
+          title: 'ข่าวสาร: กิจกรรมกีฬาสี',
+          body: 'เปิดรับสมัครนักกีฬาและเชียร์ลีดเดอร์ ภายในสัปดาห์นี้',
+          category: 'news',
+          createdAt: Date.now()
+        }
+      ];
+      localStorage.setItem(KEY_ALERTS, JSON.stringify(seed));
+      return seed;
+    }
+
+    function saveAlerts() {
+      localStorage.setItem(KEY_ALERTS, JSON.stringify(alerts));
+    }
+
+    function loadUsers() {
+      try {
+        const raw = localStorage.getItem(KEY_USERS);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveUsers() {
+      localStorage.setItem(KEY_USERS, JSON.stringify(users));
+    }
+
+    function loadSession() {
+      try {
+        const raw = localStorage.getItem(KEY_SESSION);
+        if (!raw) return null;
+        const { username } = JSON.parse(raw);
+        const found = users.find(u => u.username === username);
+        return found || null;
+      } catch {
+        return null;
+      }
+    }
+
+    function setSession(user) {
+      if (user) {
+        localStorage.setItem(KEY_SESSION, JSON.stringify({ username: user.username }));
+      } else {
+        localStorage.removeItem(KEY_SESSION);
+      }
+      sessionUser = user;
+    }
+
+    function loadPrefs() {
+      try {
+        const raw = localStorage.getItem(KEY_PREFS);
+        if (!raw) return { weatherNotify: 'rain', hazardNotify: true, location: null };
+        const parsed = JSON.parse(raw);
+        return {
+          weatherNotify: parsed.weatherNotify || 'rain',
+          hazardNotify: parsed.hazardNotify !== false,
+          location: parsed.location || null
+        };
+      } catch {
+        return { weatherNotify: 'rain', hazardNotify: true, location: null };
+      }
+    }
+
+    function savePrefs() {
+      localStorage.setItem(KEY_PREFS, JSON.stringify(prefs));
+    }
+
+    function makeId() {
+      return Math.random().toString(36).slice(2, 10);
+    }
+
+    // Render alerts list
+    function renderAlerts() {
+      const visible = alerts.filter(item => filter === 'all' ? true : item.category === filter);
+      if (!visible.length) {
+        listEl.innerHTML = '<div class="empty">ยังไม่มีประกาศ</div>';
+        return;
+      }
+      listEl.innerHTML = '';
+      visible.forEach(item => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'item';
+
+        const badge = document.createElement('div');
+        badge.className = 'badge ' + (item.category === 'alert' ? 'alert' : 'news');
+        badge.textContent = item.category === 'alert' ? 'แจ้งเตือน' : 'ข่าวสาร';
+        wrapper.appendChild(badge);
+
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = item.title;
+        wrapper.appendChild(title);
+
+        const body = document.createElement('div');
+        body.className = 'body';
+        body.textContent = item.body;
+        wrapper.appendChild(body);
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        const date = new Date(item.createdAt);
+        meta.textContent = 'เผยแพร่ ' + date.toLocaleString('th-TH');
+        wrapper.appendChild(meta);
+
+        if (canEdit()) {
+          const del = document.createElement('button');
+          del.className = 'delete';
+          del.textContent = 'ลบ';
+          del.addEventListener('click', () => {
+            alerts = alerts.filter(x => x.id !== item.id);
+            saveAlerts();
+            renderAlerts();
+          });
+          wrapper.appendChild(del);
+        }
+
+        listEl.appendChild(wrapper);
+      });
+    }
+
+    // Permissions
+    function updateNotifyStatus() {
+      const perm = Notification?.permission || 'default';
+      notifyStatus.textContent = 'สถานะ: ' + (perm === 'granted' ? 'อนุญาตแล้ว' : perm === 'denied' ? 'ปฏิเสธ' : 'ยังไม่ขอ');
+      if (perm === 'granted') {
+        notifyStatus.style.background = 'rgba(154,225,111,0.2)';
+        notifyStatus.style.color = '#dff5c4';
+      } else if (perm === 'denied') {
+        notifyStatus.style.background = 'rgba(255,122,107,0.15)';
+        notifyStatus.style.color = '#ffc9c1';
+      }
+    }
+
+    btnNotify.addEventListener('click', async () => {
+      if (!('Notification' in window)) {
+        alert('เบราว์เซอร์ไม่รองรับ Notification API');
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      updateNotifyStatus();
+      if (perm === 'granted') {
+        new Notification('เปิดแจ้งเตือนสำเร็จ', { body: 'จะได้รับแจ้งเมื่อมีประกาศใหม่', icon: 'assets/school-logo.svg' });
+      }
+    });
+
+    function pushNotification(title, body) {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'granted') {
+        new Notification(title, { body, icon: 'assets/school-logo.svg' });
+      }
+    }
+
+    // Auth
+    function canEdit() {
+      return sessionUser && (sessionUser.role === 'admin' || sessionUser.role === 'editor');
+    }
+
+    function renderAuthPanels() {
+      if (!sessionUser) {
+        authPanel.style.display = 'block';
+        userPanel.style.display = 'none';
+        addCard.style.display = 'none';
+        adminUsers.style.display = 'none';
+      } else {
+        authPanel.style.display = 'none';
+        userPanel.style.display = 'block';
+        addCard.style.display = canEdit() ? 'block' : 'none';
+        adminUsers.style.display = sessionUser.role === 'admin' ? 'block' : 'none';
+        displayNameEl.textContent = sessionUser.displayName || sessionUser.username;
+        rolePill.textContent = 'สิทธิ์: ' + sessionUser.role;
+        avatarImg.src = sessionUser.avatar || 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(sessionUser.displayName || sessionUser.username);
+        profileDisplay.value = sessionUser.displayName || '';
+        profileAvatar.value = sessionUser.avatar || '';
+        renderUserTable();
+      }
+    }
+
+    function renderUserTable() {
+      if (sessionUser?.role !== 'admin') return;
+      userTable.innerHTML = '';
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${user.username}</td>
+          <td>${user.displayName || '-'}</td>
+          <td>
+            <select data-username="${user.username}">
+              <option value="viewer" ${user.role === 'viewer' ? 'selected' : ''}>ผู้ชม</option>
+              <option value="editor" ${user.role === 'editor' ? 'selected' : ''}>ผู้แก้ไข</option>
+              <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>ผู้ดูแล</option>
+            </select>
+          </td>
+        `;
+        const select = tr.querySelector('select');
+        select.addEventListener('change', () => {
+          if (sessionUser?.role !== 'admin') {
+            select.value = user.role;
+            alert('เฉพาะผู้ดูแลเท่านั้นที่ปรับสิทธิ์ได้');
+            return;
+          }
+          const target = users.find(u => u.username === user.username);
+          if (!target) return;
+
+          const prevRole = target.role;
+          const nextRole = select.value;
+          const adminCount = users.filter(u => u.role === 'admin').length;
+
+          // ป้องกันไม่ให้ผู้ดูแลคนสุดท้ายลดสิทธิ์ตัวเอง
+          if (target.username === sessionUser.username && prevRole === 'admin' && nextRole !== 'admin' && adminCount <= 1) {
+            alert('ต้องมีผู้ดูแลอย่างน้อย 1 คน');
+            select.value = prevRole;
+            return;
+          }
+
+          target.role = nextRole;
+          saveUsers();
+          if (target.username === sessionUser.username) {
+            sessionUser = target;
+            setSession(target);
+            renderAuthPanels();
+          }
+          renderUserTable();
+        });
+        userTable.appendChild(tr);
+      });
+    }
+
+    // Event bindings
+    filtersEl.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('button[data-filter]');
+      if (!btn) return;
+      filter = btn.dataset.filter;
+      [...filtersEl.querySelectorAll('button')].forEach(b => b.classList.toggle('active', b === btn));
+      renderAlerts();
+    });
+
+    saveBtn.addEventListener('click', () => {
+      if (!canEdit()) {
+        alert('ไม่มีสิทธิ์เพิ่มประกาศ');
+        return;
+      }
+      const title = titleEl.value.trim();
+      const body = bodyEl.value.trim();
+      const category = typeEl.value === 'alert' ? 'alert' : 'news';
+      if (!title || !body) {
+        alert('กรุณากรอกหัวข้อและรายละเอียด');
+        return;
+      }
+      const newItem = { id: makeId(), title, body, category, createdAt: Date.now() };
+      alerts = [newItem, ...alerts];
+      saveAlerts();
+      renderAlerts();
+      titleEl.value = '';
+      bodyEl.value = '';
+      titleEl.focus();
+      pushNotification(category === 'alert' ? 'แจ้งเตือนใหม่' : 'ข่าวสารใหม่', title);
+    });
+
+    tabLogin.addEventListener('click', () => {
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      loginForm.style.display = 'block';
+      registerForm.style.display = 'none';
+    });
+    tabRegister.addEventListener('click', () => {
+      tabRegister.classList.add('active');
+      tabLogin.classList.remove('active');
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'block';
+    });
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = users.find(u => u.username === loginUser.value.trim());
+      if (!user || user.password !== loginPass.value) {
+        alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+        return;
+      }
+      setSession(user);
+      renderAuthPanels();
+    });
+
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = regUser.value.trim();
+      const password = regPass.value;
+      const displayName = regDisplay.value.trim() || username;
+      if (!username || !password) {
+        alert('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
+        return;
+      }
+      if (users.some(u => u.username === username)) {
+        alert('ชื่อผู้ใช้นี้ถูกใช้แล้ว');
+        return;
+      }
+      const role = users.length === 0 ? 'admin' : 'viewer';
+      const newUser = { username, password, role, displayName, avatar: '' };
+      users.push(newUser);
+      saveUsers();
+      setSession(newUser);
+      regUser.value = '';
+      regPass.value = '';
+      regDisplay.value = '';
+      renderAuthPanels();
+    });
+
+    btnLogout.addEventListener('click', () => {
+      setSession(null);
+      renderAuthPanels();
+    });
+
+    btnProfile.addEventListener('click', () => {
+      if (!sessionUser) return;
+      const updatedDisplay = profileDisplay.value.trim() || sessionUser.username;
+      const updatedAvatar = profileAvatar.value.trim();
+      const target = users.find(u => u.username === sessionUser.username);
+      if (target) {
+        target.displayName = updatedDisplay;
+        target.avatar = updatedAvatar;
+        saveUsers();
+        sessionUser = target;
+        setSession(target);
+        renderAuthPanels();
+      }
+    });
+
+    // Initialize
+    renderAlerts();
+    renderAuthPanels();
+    syncPrefsUI();
+    refreshLocationStatus();
+    updateNotifyStatus();
+
+    // Prefs UI sync
+    function syncPrefsUI() {
+      selWeatherNotify.value = prefs.weatherNotify || 'rain';
+      selHazardNotify.value = prefs.hazardNotify ? 'on' : 'off';
+    }
+
+    selWeatherNotify.addEventListener('change', () => {
+      prefs.weatherNotify = selWeatherNotify.value;
+      savePrefs();
+    });
+    selHazardNotify.addEventListener('change', () => {
+      prefs.hazardNotify = selHazardNotify.value === 'on';
+      savePrefs();
+    });
+
+    // Location
+    btnLocate.addEventListener('click', () => {
+      if (!('geolocation' in navigator)) {
+        alert('เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          prefs.location = {
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            fetchedAt: Date.now()
+          };
+          savePrefs();
+          refreshLocationStatus();
+        },
+        () => {
+          alert('ไม่สามารถขอตำแหน่งได้');
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    });
+
+    function refreshLocationStatus() {
+      if (!prefs.location) {
+        locStatus.textContent = 'ตำแหน่ง: ยังไม่ได้เปิด';
+      } else {
+        const { lat, lon } = prefs.location;
+        locStatus.textContent = `ตำแหน่ง: ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+      }
+    }
+
+    // Weather fetch
+    btnWeatherUpdate.addEventListener('click', () => {
+      checkWeatherAndNotify();
+      checkHazardAndNotify();
+    });
+
+    async function checkWeatherAndNotify() {
+      if (prefs.weatherNotify === 'none') {
+        weatherStatus.textContent = 'อากาศ: ปิดแจ้งเตือน';
+        return;
+      }
+      if (!prefs.location) {
+        weatherStatus.textContent = 'อากาศ: โปรดเปิดตำแหน่งก่อน';
+        return;
+      }
+      const { lat, lon } = prefs.location;
+      weatherStatus.textContent = 'อากาศ: กำลังดึงข้อมูล...';
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_probability_max,weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const p = data?.daily;
+        if (!p || !p.weathercode || !p.weathercode.length) {
+          weatherStatus.textContent = 'อากาศ: ไม่มีข้อมูล';
+          return;
+        }
+        const probRain = p.precipitation_probability_max[0] || 0;
+        const code = p.weathercode[0];
+        const tmax = p.temperature_2m_max?.[0];
+        const tmin = p.temperature_2m_min?.[0];
+        const isRain = probRain >= 50 || [51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code);
+        const message = isRain
+          ? `วันนี้มีโอกาสฝน ${probRain}% พกร่มด้วยนะ`
+          : `อากาศโปร่ง โอกาสฝน ${probRain}%`;
+        const tempMsg = (tmax != null && tmin != null) ? ` อุณหภูมิ ${Math.round(tmin)}°-` + `${Math.round(tmax)}°` : '';
+        weatherStatus.textContent = 'อากาศ: ' + message + tempMsg;
+        if (Notification.permission === 'granted') {
+          if (prefs.weatherNotify === 'all') {
+            pushNotification('อัปเดตอากาศ', message + tempMsg);
+          } else if (prefs.weatherNotify === 'rain' && isRain) {
+            pushNotification('เตือนฝน', message);
+          }
+        }
+      } catch (err) {
+        weatherStatus.textContent = 'อากาศ: ดึงข้อมูลไม่สำเร็จ';
+        console.error(err);
+      }
+    }
+
+    // Hazard (แผ่นดินไหว) — ใช้ USGS feed สาธารณะ
+    async function checkHazardAndNotify() {
+      if (!prefs.hazardNotify) {
+        hazardStatus.textContent = 'ภัยพิบัติ: ปิดแจ้งเตือน';
+        return;
+      }
+      if (!prefs.location) {
+        hazardStatus.textContent = 'ภัยพิบัติ: โปรดเปิดตำแหน่งก่อน';
+        return;
+      }
+      const { lat, lon } = prefs.location;
+      hazardStatus.textContent = 'ภัยพิบัติ: กำลังเช็ก...';
+      const start = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+      const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start}&minmagnitude=4`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const feats = data?.features || [];
+        const nearby = feats
+          .map(f => ({
+            mag: f.properties?.mag,
+            place: f.properties?.place,
+            time: f.properties?.time,
+            coords: f.geometry?.coordinates
+          }))
+          .filter(f => f.coords && distanceKm(lat, lon, f.coords[1], f.coords[0]) <= 300);
+        if (!nearby.length) {
+          hazardStatus.textContent = 'ภัยพิบัติ: ไม่มีเหตุใกล้เคียง (3 วัน)';
+          return;
+        }
+        const strongest = nearby.sort((a,b) => (b.mag||0) - (a.mag||0))[0];
+        const msg = `แผ่นดินไหว M${strongest.mag?.toFixed?.(1) || '?'} ใกล้คุณ (~${strongest.place || 'ไม่ระบุ'})`;
+        hazardStatus.textContent = 'ภัยพิบัติ: ' + msg;
+        pushNotification('แจ้งเตือนภัยพิบัติ', msg);
+      } catch (err) {
+        hazardStatus.textContent = 'ภัยพิบัติ: ดึงข้อมูลไม่สำเร็จ';
+        console.error(err);
+      }
+    }
+
+    function distanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+  </script>
+</body>
+</html>
