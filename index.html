@@ -120,6 +120,25 @@
       background: rgba(255,255,255,0.03);
       position: relative;
     }
+    .actions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+    }
+    .btn-chip {
+      width: auto;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s ease, opacity 0.2s ease;
+    }
+    .btn-chip:hover { transform: translateY(-1px); }
+    .btn-edit { background: var(--yellow); color: #0c1c11; }
+    .btn-delete { background: #ff7a6b; color: #0c1c11; }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -224,6 +243,14 @@
       object-fit: cover;
       background: rgba(255,255,255,0.1);
     }
+    .thumb {
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -298,6 +325,10 @@
             <option value="off">ปิด</option>
           </select>
         </div>
+        <div>
+          <label>เวลาส่งแจ้งเตือนอากาศ (รายวัน)</label>
+          <input id="weatherTime" type="time" step="60">
+        </div>
       </div>
       <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;">
         <div class="pill" id="locStatus">ตำแหน่ง: ยังไม่ได้เปิด</div>
@@ -319,11 +350,10 @@
       </div>
       <form id="loginForm">
         <label>ชื่อผู้ใช้</label>
-        <input id="loginUser" type="text" placeholder="เช่น admin">
+        <input id="loginUser" type="text" placeholder="เช่น แมคกายเวอร์">
         <label style="margin-top:10px;">รหัสผ่าน</label>
         <input id="loginPass" type="password" placeholder="รหัสผ่าน">
         <button type="submit">เข้าสู่ระบบ</button>
-        <p style="color:var(--muted);font-size:12px;margin:8px 0 0;">บัญชีตัวอย่าง: admin / admin123 (สิทธิ์ผู้ดูแล)</p>
       </form>
       <form id="registerForm" style="display:none;">
         <label>ชื่อผู้ใช้</label>
@@ -357,6 +387,11 @@
           <label>ลิงก์รูปโปรไฟล์</label>
           <input id="profileAvatar" type="url" placeholder="https://...">
         </div>
+        <div>
+          <label>อัปโหลดรูปโปรไฟล์</label>
+          <input id="profileAvatarFile" type="file" accept="image/*">
+          <p style="color:var(--muted);font-size:12px;margin:6px 0 0;">ไฟล์ภาพ ≤ 1.5MB</p>
+        </div>
       </div>
       <button id="btnProfile" style="width:auto;">บันทึกโปรไฟล์</button>
     </section>
@@ -385,9 +420,20 @@
           <label for="body">รายละเอียด</label>
           <textarea id="body" placeholder="เพิ่มรายละเอียดสำหรับนักเรียน/ผู้ปกครอง"></textarea>
         </div>
-        <button id="save">บันทึก</button>
-      </section>
-      <section class="card">
+        <div style="margin-top:10px;">
+          <label>รูปภาพประกาศ (ถ้ามี)</label>
+          <input id="alertImage" type="file" accept="image/*">
+          <div class="row" style="gap:8px;align-items:center;">
+            <span id="imageHint" style="color:var(--muted);font-size:12px;">ไฟล์ภาพ ≤ 1.5MB</span>
+            <button id="clearImage" style="width:auto;margin-top:0;display:none;background:rgba(255,255,255,0.08);color:var(--text);">ลบรูป</button>
+          </div>
+        </div>
+        <div class="row" style="justify-content:flex-start;">
+          <button id="save" style="width:auto;">บันทึก</button>
+          <button id="cancelEdit" style="width:auto;display:none;background:rgba(255,255,255,0.08);color:var(--text);">ยกเลิก</button>
+        </div>
+  </section>
+  <section class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
           <div>
             <div style="font-weight:700;">รายการประกาศ</div>
@@ -435,6 +481,7 @@
     // Elements
     const listEl = document.getElementById('list');
     const saveBtn = document.getElementById('save');
+    const cancelEditBtn = document.getElementById('cancelEdit');
     const titleEl = document.getElementById('title');
     const bodyEl = document.getElementById('body');
     const typeEl = document.getElementById('type');
@@ -457,6 +504,7 @@
     const avatarImg = document.getElementById('avatarImg');
     const profileDisplay = document.getElementById('profileDisplay');
     const profileAvatar = document.getElementById('profileAvatar');
+    const profileAvatarFile = document.getElementById('profileAvatarFile');
     const btnProfile = document.getElementById('btnProfile');
     const btnLogout = document.getElementById('btnLogout');
     const userTable = document.getElementById('userTable');
@@ -466,15 +514,31 @@
     const btnWeatherUpdate = document.getElementById('btnWeatherUpdate');
     const selWeatherNotify = document.getElementById('selWeatherNotify');
     const selHazardNotify = document.getElementById('selHazardNotify');
+    const weatherTime = document.getElementById('weatherTime');
     const locStatus = document.getElementById('locStatus');
     const weatherStatus = document.getElementById('weatherStatus');
     const hazardStatus = document.getElementById('hazardStatus');
+    const alertImage = document.getElementById('alertImage');
+    const clearImageBtn = document.getElementById('clearImage');
+    const imageHint = document.getElementById('imageHint');
+    const alertImage = document.getElementById('alertImage');
+    const clearImageBtn = document.getElementById('clearImage');
+    const imageHint = document.getElementById('imageHint');
+    const alertImage = document.getElementById('alertImage');
+    const clearImageBtn = document.getElementById('clearImage');
+    const imageHint = document.getElementById('imageHint');
 
     let filter = 'all';
     let alerts = loadAlerts();
     let users = loadUsers();
     let sessionUser = loadSession();
     let prefs = loadPrefs();
+    let editingId = null;
+    let formImageData = null;
+    let weatherTimer = null;
+    let weatherTimer = null;
+    let formImageData = null;
+    let formImageData = null;
 
     // Seed admin if missing
     if (!users.length) {
@@ -570,15 +634,17 @@
     function loadPrefs() {
       try {
         const raw = localStorage.getItem(KEY_PREFS);
-        if (!raw) return { weatherNotify: 'rain', hazardNotify: true, location: null };
+        if (!raw) return { weatherNotify: 'rain', hazardNotify: true, location: null, weatherTime: '', lastWeatherRun: '' };
         const parsed = JSON.parse(raw);
         return {
           weatherNotify: parsed.weatherNotify || 'rain',
           hazardNotify: parsed.hazardNotify !== false,
-          location: parsed.location || null
+          location: parsed.location || null,
+          weatherTime: parsed.weatherTime || '',
+          lastWeatherRun: parsed.lastWeatherRun || ''
         };
       } catch {
-        return { weatherNotify: 'rain', hazardNotify: true, location: null };
+        return { weatherNotify: 'rain', hazardNotify: true, location: null, weatherTime: '', lastWeatherRun: '' };
       }
     }
 
@@ -624,15 +690,48 @@
         wrapper.appendChild(meta);
 
         if (canEdit()) {
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+
+          const edit = document.createElement('button');
+          edit.className = 'btn-chip btn-edit';
+          edit.textContent = 'แก้ไข';
+          edit.addEventListener('click', () => {
+            editingId = item.id;
+            titleEl.value = item.title;
+            bodyEl.value = item.body;
+            typeEl.value = item.category;
+            saveBtn.textContent = 'บันทึกการแก้ไข';
+            cancelEditBtn.style.display = 'inline-flex';
+            alertImage.value = '';
+            formImageData = item.imageData || null;
+            updateImageHint();
+            titleEl.focus();
+          });
+
           const del = document.createElement('button');
-          del.className = 'delete';
+          del.className = 'btn-chip btn-delete';
           del.textContent = 'ลบ';
           del.addEventListener('click', () => {
             alerts = alerts.filter(x => x.id !== item.id);
             saveAlerts();
+            if (editingId === item.id) {
+              clearEditMode();
+            }
             renderAlerts();
           });
-          wrapper.appendChild(del);
+
+          actions.appendChild(edit);
+          actions.appendChild(del);
+          wrapper.appendChild(actions);
+        }
+
+        if (item.imageData) {
+          const img = document.createElement('img');
+          img.className = 'thumb';
+          img.src = item.imageData;
+          img.alt = 'รูปภาพประกาศ';
+          wrapper.appendChild(img);
         }
 
         listEl.appendChild(wrapper);
@@ -692,6 +791,7 @@
         avatarImg.src = sessionUser.avatar || 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(sessionUser.displayName || sessionUser.username);
         profileDisplay.value = sessionUser.displayName || '';
         profileAvatar.value = sessionUser.avatar || '';
+        if (profileAvatarFile) profileAvatarFile.value = '';
         renderUserTable();
       }
     }
@@ -755,6 +855,52 @@
       renderAlerts();
     });
 
+    function clearEditMode() {
+      editingId = null;
+      saveBtn.textContent = 'บันทึก';
+      cancelEditBtn.style.display = 'none';
+      titleEl.value = '';
+      bodyEl.value = '';
+      typeEl.value = 'alert';
+      formImageData = null;
+      alertImage.value = '';
+      updateImageHint();
+    }
+
+    cancelEditBtn.addEventListener('click', clearEditMode);
+
+    function updateImageHint() {
+      if (formImageData) {
+        imageHint.textContent = 'แนบรูปแล้ว';
+        clearImageBtn.style.display = 'inline-flex';
+      } else {
+        imageHint.textContent = 'ไฟล์ภาพ ≤ 1.5MB';
+        clearImageBtn.style.display = 'none';
+      }
+    }
+
+    alertImage.addEventListener('change', () => {
+      const file = alertImage.files?.[0];
+      if (!file) return;
+      if (file.size > 1.5 * 1024 * 1024) {
+        alert('ไฟล์ใหญ่เกิน 1.5MB');
+        alertImage.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        formImageData = reader.result;
+        updateImageHint();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    clearImageBtn.addEventListener('click', () => {
+      formImageData = null;
+      alertImage.value = '';
+      updateImageHint();
+    });
+
     saveBtn.addEventListener('click', () => {
       if (!canEdit()) {
         alert('ไม่มีสิทธิ์เพิ่มประกาศ');
@@ -767,14 +913,30 @@
         alert('กรุณากรอกหัวข้อและรายละเอียด');
         return;
       }
-      const newItem = { id: makeId(), title, body, category, createdAt: Date.now() };
-      alerts = [newItem, ...alerts];
-      saveAlerts();
-      renderAlerts();
-      titleEl.value = '';
-      bodyEl.value = '';
-      titleEl.focus();
-      pushNotification(category === 'alert' ? 'แจ้งเตือนใหม่' : 'ข่าวสารใหม่', title);
+      if (editingId) {
+        const target = alerts.find(a => a.id === editingId);
+        if (target) {
+          target.title = title;
+          target.body = body;
+          target.category = category;
+          target.imageData = formImageData;
+          saveAlerts();
+          renderAlerts();
+          clearEditMode();
+        }
+      } else {
+        const newItem = { id: makeId(), title, body, category, createdAt: Date.now(), imageData: formImageData };
+        alerts = [newItem, ...alerts];
+        saveAlerts();
+        renderAlerts();
+        titleEl.value = '';
+        bodyEl.value = '';
+        titleEl.focus();
+        formImageData = null;
+        alertImage.value = '';
+        updateImageHint();
+        pushNotification(category === 'alert' ? 'แจ้งเตือนใหม่' : 'ข่าวสารใหม่', title);
+      }
     });
 
     tabLogin.addEventListener('click', () => {
@@ -845,26 +1007,58 @@
       }
     });
 
+    profileAvatarFile.addEventListener('change', () => {
+      const file = profileAvatarFile.files?.[0];
+      if (!file) return;
+      if (file.size > 1.5 * 1024 * 1024) {
+        alert('ไฟล์ใหญ่เกิน 1.5MB');
+        profileAvatarFile.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (!sessionUser) return;
+        const target = users.find(u => u.username === sessionUser.username);
+        if (target) {
+          target.avatar = reader.result;
+          saveUsers();
+          sessionUser = target;
+          setSession(target);
+          renderAuthPanels();
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
     // Initialize
     renderAlerts();
     renderAuthPanels();
     syncPrefsUI();
     refreshLocationStatus();
     updateNotifyStatus();
+    updateImageHint();
+    startWeatherSchedule();
 
     // Prefs UI sync
     function syncPrefsUI() {
       selWeatherNotify.value = prefs.weatherNotify || 'rain';
       selHazardNotify.value = prefs.hazardNotify ? 'on' : 'off';
+      weatherTime.value = prefs.weatherTime || '';
     }
 
     selWeatherNotify.addEventListener('change', () => {
       prefs.weatherNotify = selWeatherNotify.value;
       savePrefs();
+      startWeatherSchedule();
     });
     selHazardNotify.addEventListener('change', () => {
       prefs.hazardNotify = selHazardNotify.value === 'on';
       savePrefs();
+    });
+    weatherTime.addEventListener('change', () => {
+      prefs.weatherTime = weatherTime.value;
+      savePrefs();
+      startWeatherSchedule();
     });
 
     // Location
@@ -901,11 +1095,11 @@
 
     // Weather fetch
     btnWeatherUpdate.addEventListener('click', () => {
-      checkWeatherAndNotify();
+      checkWeatherAndNotify(false);
       checkHazardAndNotify();
     });
 
-    async function checkWeatherAndNotify() {
+    async function checkWeatherAndNotify(isScheduled) {
       if (prefs.weatherNotify === 'none') {
         weatherStatus.textContent = 'อากาศ: ปิดแจ้งเตือน';
         return;
@@ -915,7 +1109,7 @@
         return;
       }
       const { lat, lon } = prefs.location;
-      weatherStatus.textContent = 'อากาศ: กำลังดึงข้อมูล...';
+        weatherStatus.textContent = 'อากาศ: กำลังดึงข้อมูล...';
       try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_probability_max,weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
         const res = await fetch(url);
@@ -941,6 +1135,10 @@
           } else if (prefs.weatherNotify === 'rain' && isRain) {
             pushNotification('เตือนฝน', message);
           }
+        }
+        if (isScheduled) {
+          prefs.lastWeatherRun = new Date().toISOString().slice(0,10);
+          savePrefs();
         }
       } catch (err) {
         weatherStatus.textContent = 'อากาศ: ดึงข้อมูลไม่สำเร็จ';
@@ -998,6 +1196,22 @@
         Math.sin(dLon/2) * Math.sin(dLon/2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       return R * c;
+    }
+
+    // Schedule weather checks
+    function startWeatherSchedule() {
+      if (weatherTimer) clearInterval(weatherTimer);
+      if (!prefs.weatherTime) return;
+      weatherTimer = setInterval(() => {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2,'0');
+        const mm = String(now.getMinutes()).padStart(2,'0');
+        const today = now.toISOString().slice(0,10);
+        if (prefs.lastWeatherRun === today) return;
+        if (`${hh}:${mm}` === prefs.weatherTime) {
+          checkWeatherAndNotify(true);
+        }
+      }, 60000);
     }
   </script>
 </body>
