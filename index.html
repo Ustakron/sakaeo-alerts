@@ -433,7 +433,7 @@
           <button id="cancelEdit" style="width:auto;display:none;background:rgba(255,255,255,0.08);color:var(--text);">ยกเลิก</button>
         </div>
   </section>
-  <section class="card">
+  <section class="card" id="listCard">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
           <div>
             <div style="font-weight:700;">รายการประกาศ</div>
@@ -521,12 +521,9 @@
     const alertImage = document.getElementById('alertImage');
     const clearImageBtn = document.getElementById('clearImage');
     const imageHint = document.getElementById('imageHint');
-    const alertImage = document.getElementById('alertImage');
-    const clearImageBtn = document.getElementById('clearImage');
-    const imageHint = document.getElementById('imageHint');
-    const alertImage = document.getElementById('alertImage');
-    const clearImageBtn = document.getElementById('clearImage');
-    const imageHint = document.getElementById('imageHint');
+    const notifyCard = document.getElementById('notifyCard');
+    const weatherCard = document.getElementById('weatherCard');
+    const listCard = document.getElementById('listCard');
 
     let filter = 'all';
     let alerts = loadAlerts();
@@ -536,18 +533,13 @@
     let editingId = null;
     let formImageData = null;
     let weatherTimer = null;
-    let weatherTimer = null;
-    let formImageData = null;
-    let formImageData = null;
 
     // Seed admin if missing
     if (!users.length) {
       users = seedUsers();
       saveUsers();
     }
-    if (!sessionUser) {
-      sessionUser = null;
-    }
+    sessionUser = loadSession();
 
     function seedUsers() {
       return [{
@@ -740,7 +732,15 @@
 
     // Permissions
     function updateNotifyStatus() {
-      const perm = Notification?.permission || 'default';
+      if (!('Notification' in window)) {
+        notifyStatus.textContent = 'สถานะ: ไม่รองรับ';
+        notifyStatus.style.background = 'rgba(255,122,107,0.15)';
+        notifyStatus.style.color = '#ffc9c1';
+        btnNotify.disabled = true;
+        return;
+      }
+      btnNotify.disabled = false;
+      const perm = Notification.permission || 'default';
       notifyStatus.textContent = 'สถานะ: ' + (perm === 'granted' ? 'อนุญาตแล้ว' : perm === 'denied' ? 'ปฏิเสธ' : 'ยังไม่ขอ');
       if (perm === 'granted') {
         notifyStatus.style.background = 'rgba(154,225,111,0.2)';
@@ -748,6 +748,9 @@
       } else if (perm === 'denied') {
         notifyStatus.style.background = 'rgba(255,122,107,0.15)';
         notifyStatus.style.color = '#ffc9c1';
+      } else {
+        notifyStatus.style.background = '';
+        notifyStatus.style.color = '';
       }
     }
 
@@ -794,6 +797,11 @@
         if (profileAvatarFile) profileAvatarFile.value = '';
         renderUserTable();
       }
+      // ส่วนที่เป็นสาธารณะยังคงแสดงผลเสมอ
+      listCard.style.display = 'block';
+      notifyCard.style.display = 'block';
+      weatherCard.style.display = 'block';
+      renderAlerts();
     }
 
     function renderUserTable() {
@@ -1031,7 +1039,6 @@
     });
 
     // Initialize
-    renderAlerts();
     renderAuthPanels();
     syncPrefsUI();
     refreshLocationStatus();
@@ -1129,7 +1136,8 @@
           : `อากาศโปร่ง โอกาสฝน ${probRain}%`;
         const tempMsg = (tmax != null && tmin != null) ? ` อุณหภูมิ ${Math.round(tmin)}°-` + `${Math.round(tmax)}°` : '';
         weatherStatus.textContent = 'อากาศ: ' + message + tempMsg;
-        if (Notification.permission === 'granted') {
+        const canNotifyWeather = ('Notification' in window) && Notification.permission === 'granted';
+        if (canNotifyWeather) {
           if (prefs.weatherNotify === 'all') {
             pushNotification('อัปเดตอากาศ', message + tempMsg);
           } else if (prefs.weatherNotify === 'rain' && isRain) {
