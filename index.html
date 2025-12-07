@@ -783,11 +783,17 @@
         authPanel.style.display = 'block';
         userPanel.style.display = 'none';
         addCard.style.display = 'none';
+        listCard.style.display = 'none';
+        notifyCard.style.display = 'none';
+        weatherCard.style.display = 'none';
         adminUsers.style.display = 'none';
       } else {
         authPanel.style.display = 'none';
         userPanel.style.display = 'block';
         addCard.style.display = canEdit() ? 'block' : 'none';
+        listCard.style.display = 'block';
+        notifyCard.style.display = 'block';
+        weatherCard.style.display = 'block';
         adminUsers.style.display = sessionUser.role === 'admin' ? 'block' : 'none';
         displayNameEl.textContent = sessionUser.displayName || sessionUser.username;
         rolePill.textContent = 'สิทธิ์: ' + sessionUser.role;
@@ -797,10 +803,6 @@
         if (profileAvatarFile) profileAvatarFile.value = '';
         renderUserTable();
       }
-      // ส่วนที่เป็นสาธารณะยังคงแสดงผลเสมอ
-      listCard.style.display = 'block';
-      notifyCard.style.display = 'block';
-      weatherCard.style.display = 'block';
       renderAlerts();
     }
 
