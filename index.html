@@ -251,6 +251,26 @@
       margin-top: 10px;
       border: 1px solid rgba(255,255,255,0.08);
     }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+      backdrop-filter: blur(2px);
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: min(900px, 90vw);
+      max-height: 90vh;
+      border-radius: 14px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+      background: #0b1b11;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -469,6 +489,9 @@
         </table>
       </div>
     </section>
+    <div id="lightbox" class="lightbox">
+      <img id="lightboxImg" alt="รูปประกาศขยาย">
+    </div>
   </main>
 
   <script>
@@ -518,6 +541,8 @@
     const locStatus = document.getElementById('locStatus');
     const weatherStatus = document.getElementById('weatherStatus');
     const hazardStatus = document.getElementById('hazardStatus');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
     const alertImage = document.getElementById('alertImage');
     const clearImageBtn = document.getElementById('clearImage');
     const imageHint = document.getElementById('imageHint');
@@ -723,6 +748,8 @@
           img.className = 'thumb';
           img.src = item.imageData;
           img.alt = 'รูปภาพประกาศ';
+          img.style.cursor = 'zoom-in';
+          img.addEventListener('click', () => openLightbox(item.imageData));
           wrapper.appendChild(img);
         }
 
@@ -1207,6 +1234,27 @@
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       return R * c;
     }
+
+    // Lightbox
+    function openLightbox(src) {
+      if (!src) return;
+      lightboxImg.src = src;
+      lightbox.classList.add('open');
+    }
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lightboxImg.src = '';
+    }
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+        closeLightbox();
+      }
+    });
 
     // Schedule weather checks
     function startWeatherSchedule() {
